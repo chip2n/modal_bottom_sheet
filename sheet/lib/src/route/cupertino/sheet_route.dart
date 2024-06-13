@@ -95,6 +95,7 @@ class _CupertinoSheetDecorationBuilder extends StatelessWidget {
 class CupertinoSheetRoute<T> extends SheetRoute<T> {
   CupertinoSheetRoute({
     required WidgetBuilder builder,
+    required this.overlayStyle,
     super.stops,
     double initialStop = 1,
     super.settings,
@@ -112,6 +113,8 @@ class CupertinoSheetRoute<T> extends SheetRoute<T> {
           animationCurve: _kCupertinoSheetCurve,
           initialExtent: initialStop,
         );
+
+  final SystemUiOverlayStyle overlayStyle;
 
   @override
   bool get draggable => true;
@@ -215,6 +218,7 @@ class CupertinoSheetRoute<T> extends SheetRoute<T> {
       body: child,
       sheetAnimation: delayAnimation,
       secondaryAnimation: secondaryAnimation,
+      overlayStyle: overlayStyle,
     );
   }
 }
@@ -227,12 +231,14 @@ class CupertinoSheetBottomRouteTransition extends StatelessWidget {
     required this.sheetAnimation,
     required this.secondaryAnimation,
     required this.body,
+    required this.overlayStyle,
   });
 
   final Widget body;
 
   final Animation<double> sheetAnimation;
   final Animation<double> secondaryAnimation;
+  final SystemUiOverlayStyle overlayStyle;
 
   // Currently iOS does not provide any way to detect the radius of the
   // screen device. Right not we detect if the safe area has the size
@@ -258,7 +264,7 @@ class CupertinoSheetBottomRouteTransition extends StatelessWidget {
     );
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: overlayStyle,
       child: AnimatedBuilder(
         animation: secondaryAnimation,
         child: body,
@@ -320,6 +326,7 @@ class CupertinoSheetPage<T> extends Page<T> {
   const CupertinoSheetPage({
     required this.child,
     this.maintainState = true,
+    this.overlayStyle = SystemUiOverlayStyle.light,
     super.key,
     super.name,
     super.arguments,
@@ -331,9 +338,11 @@ class CupertinoSheetPage<T> extends Page<T> {
   /// {@macro flutter.widgets.modalRoute.maintainState}
   final bool maintainState;
 
+  final SystemUiOverlayStyle overlayStyle;
+
   @override
   Route<T> createRoute(BuildContext context) {
-    return _PageBasedCupertinoSheetRoute<T>(page: this);
+    return _PageBasedCupertinoSheetRoute<T>(page: this, overlayStyle: overlayStyle);
   }
 }
 
@@ -344,6 +353,7 @@ class CupertinoSheetPage<T> extends Page<T> {
 class _PageBasedCupertinoSheetRoute<T> extends CupertinoSheetRoute<T> {
   _PageBasedCupertinoSheetRoute({
     required CupertinoSheetPage<T> page,
+    required SystemUiOverlayStyle overlayStyle,
     super.stops,
     super.initialStop,
     super.backgroundColor,
@@ -354,6 +364,7 @@ class _PageBasedCupertinoSheetRoute<T> extends CupertinoSheetRoute<T> {
             return (ModalRoute.of(context)!.settings as CupertinoSheetPage<T>)
                 .child;
           },
+          overlayStyle: overlayStyle,
         );
 
   CupertinoSheetPage<T> get _page => settings as CupertinoSheetPage<T>;
